@@ -1,0 +1,29 @@
+model{
+for (i in 1:I){	#individuals
+	temp[i]<-(log(timeF[i]+0.01)-log(lam[i]))/sigma
+	log(lam[i])<-beta0+u[spt[i]]+v[spt[i]]	#spt is a variable indicating which spatial region individual i is in
+#logistic distn surv and density
+	s[i]<-1/(1+exp(temp[i]))
+	f[i]<-exp(temp[i])*pow(s[i],2)
+#log like
+	L[i]<-indic[i]*log(f[i]/(sigma*(timeF[i]+0.01)))+(1-indic[i])*log(s[i])
+#Poisson zeros trick
+	zeros[i]<-0
+	new[i]<- -L[i]
+	zeros[i]~dpois(new[i])
+}#close i loop
+beta0~dnorm(0,0.001)
+tauu<-pow(sdu,-2)
+sdu~dunif(0,10)
+sigma~dunif(0.01,10)
+tauv<-pow(sdv,-2)
+sdv~dunif(0,10)
+#spatial random effects
+v[1:100]~car.normal(adj[],weights[],num[],tauv)
+for (j in 1:100){	#spatial regions
+	u[j]~dnorm(1,tauu)
+}#close j loop
+for (k in 1:sumNumNeigh){
+	weights[k]<-1
+}#close k loop
+}#close model loop

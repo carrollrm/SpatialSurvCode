@@ -1,0 +1,22 @@
+model{
+for (i in 1:I){	#individuals
+	t[i]~dweib(rho,lambda[i])I(tcen[i],)
+	log(lambda[i])<-beta0+u[spt[i]]+v[spt[i]]
+	median[i]<-pow((log(2)/lambda[i]),1/rho)
+	log(surv[i])<- -lambda[i]*pow(t[i],rho)
+}#close i loop
+beta0~dnorm(0,0.0001)
+rho~dgamma(1,0.0001)
+tauu<-pow(sdu,-2)
+sdu~dunif(0,10)
+tauv<-pow(sdv,-2)
+sdv~dunif(0,10)
+#spatial random effects
+v[1:100]~car.normal(adj[],weights[],num[],tauv)
+for (j in 1:100){	#spatial regions
+	u[j]~dnorm(1,tauu)
+}#close j loop
+for (k in 1:sumNumNeigh){
+	weights[k]<-1
+}#close k loop
+}#close model loop
